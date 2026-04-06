@@ -1,21 +1,27 @@
-import pandas as pd
+# online_features.py
+import json
+import re
+import sys
 
-# Sample input data
-input_data = [
-    {"transaction_description": "Transaction 1", "amount": 100, "category": "Food & Dining"},
-    {"transaction_description": "Transaction 2", "amount": 200, "category": "Income"},
-]
+def compute_features(transaction: dict) -> dict:
+    description = transaction.get("transaction_description", "")
+    
+    # Clean text: lowercase, remove special characters
+    description_clean = re.sub(r'[^a-z0-9\s]', '', description.lower()).strip()
+    
+    # Feature: description word count
+    description_length = len(description_clean.split())
+    
+    return {
+        "transaction_description": description,
+        "transaction_description_clean": description_clean,
+        "country": transaction.get("country", ""),
+        "currency": transaction.get("currency", ""),
+        "description_length": description_length
+    }
 
-# Create DataFrame
-df = pd.DataFrame(input_data)
-
-# Compute online features
-df["amount_squared"] = df["amount"] ** 2
-df["is_food"] = df["category"] == "Food & Dining"
-
-# Save the output to CSV
-output_file = "/home/cc/online_features_output.csv"
-df.to_csv(output_file, index=False)
-
-# Print completion message
-print("Online feature computation finished. Output saved to:", output_file)
+if __name__ == "__main__":
+    # Accept JSON input from command line
+    input_data = json.loads(sys.argv[1])
+    features = compute_features(input_data)
+    print(json.dumps(features, indent=2))
