@@ -1,19 +1,32 @@
-import pandas as pd
+import requests
 import random
+import time
 
-records = []
-categories = ['Income', 'Food & Dining', 'Healthcare & Medical', 'Shopping & Retail']
-countries = ['USA', 'UK', 'AU']
+descriptions = [
+    "McDonald's #1234",
+    "Uber Ride to Airport",
+    "Amazon Purchase",
+    "Netflix Subscription",
+    "Shell Gas Station",
+    "Walmart Grocery",
+    "Starbucks Coffee",
+    "Delta Airlines"
+]
+countries = ['US', 'UK', 'AUSTRALIA']
 currencies = ['USD', 'GBP', 'AUD']
 
-for i in range(100):
-    records.append({
-        "transaction_description": f"Transaction {i}",
-        "category": random.choice(categories),
+SERVING_URL = "http://localhost:8080/predict"
+
+for i in range(10):
+    payload = {
+        "transaction_description": random.choice(descriptions),
         "country": random.choice(countries),
         "currency": random.choice(currencies)
-    })
-
-df = pd.DataFrame(records)
-df.to_parquet('/home/cc/synthetic_transactions.parquet', index=False)
-print("Synthetic data generated at /home/cc/synthetic_transactions.parquet")
+    }
+    print(f"Request {i+1}: sending -> {payload}")
+    try:
+        response = requests.post(SERVING_URL, json=payload, timeout=2)
+        print(f"Response: {response.json()}")
+    except Exception as e:
+        print(f"Endpoint not yet available (serving not integrated): {e}")
+    time.sleep(1)
