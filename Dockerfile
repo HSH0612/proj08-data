@@ -1,14 +1,12 @@
-# Use official Python 3.10 slim image
 FROM python:3.10-slim
 
-# Set working directory inside the container
 WORKDIR /app
 
-# Copy your batch pipeline script into container
 COPY batch_pipeline.py /app/
+COPY ingest.py /app/
+COPY data_generator.py /app/
+COPY online_features.py /app/
 
-# Install pandas + pyarrow
-RUN pip install --no-cache-dir pandas pyarrow
+RUN pip install --no-cache-dir pandas pyarrow huggingface_hub
 
-# Default command (optional)
 CMD ["python3", "/app/batch_pipeline.py"]
